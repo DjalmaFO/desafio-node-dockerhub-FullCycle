@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+    image: djalmafo/node:desafio
+    container_name: node
+    entrypoint: wait-for db:3306 -t 50 -- node index.js
+    networks:
+      - app-network
+    volumes:
+      - ./node:/usr/src/app
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    tty: true
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    
+    environment:
+      - MYSQL_DATABASE=nodeapp
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - app-network
+  
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: djalmafo/nginx:desafio
+    container_name: nginx
+    networks:
+      - app-network
+    ports:
+      - "8080:80"
+
+networks:
+  app-network:
+    driver: bridge
