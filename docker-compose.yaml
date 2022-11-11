@@ -10,8 +10,6 @@ services:
     entrypoint: wait-for db:3306 -t 50 -- node index.js
     networks:
       - app-network
-    volumes:
-      - ./node:/usr/src/app
     depends_on:
       - db
     ports:
